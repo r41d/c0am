@@ -1,0 +1,19 @@
+#include <stdio.h>
+
+int main() {
+	int x, y;
+	y = 0;
+	scanf ("%d", &x);
+	while (x>0) {
+		if (x%2 == 0) {
+			x = x/2;
+		} else {
+			x = x-1;
+			y = y+1;
+		}
+		printf ("%d", x);
+	}
+	printf ("%d", y);
+	return 0;
+}
+

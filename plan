@@ -1,0 +1,4 @@
+- check for correct c0 via c0check+c0parser
+- parse c0 program (have a look at c0parser)
+- transform to AM data structures
+- translate to a string

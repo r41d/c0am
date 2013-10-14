@@ -1,0 +1,19 @@
+#include <stdio.h>
+
+int main() {
+	int digit, sum, count;
+	digit = 0;
+	sum = 0;
+	count = -1;
+	while (digit >= 0) {
+		count = count + 1;
+		if (count % 2 == 0)
+			sum = sum + digit;
+		else
+			sum = sum - digit;
+		scanf("%d", &digit);
+	}
+	printf("%d", sum);
+	return 0;
+}
+
