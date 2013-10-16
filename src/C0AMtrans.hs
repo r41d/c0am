@@ -1,10 +1,20 @@
+{-# LANGUAGE TemplateHaskell #-}
 module C0AMtrans where
 
-import Test.QuickCheck
 import Prelude  hiding (EQ, NE, LT, GT, LE, GE)
 import Data.Maybe
+
+import Test.QuickCheck
+import Test.Framework
+import Test.Framework.Providers.QuickCheck2
+import Test.Framework.TH
+
 import C0Types
 import C0AMtypes
+
+
+c0amTransQuickCheckProperties = $(testGroupGenerator)
+
 
 --------------------------------------------------------------------------------
 -- stupid conversion from C0Types to Operation
@@ -113,3 +123,7 @@ factortrans :: Factor -> SymTab -> [Command]
 factortrans (FI id) tab = [(E, LOAD (fromJust $ lookup id tab))]
 factortrans (FN z) tab = [(E, LIT (BracketlessInt z))] -- cheat to avoid ()
 factortrans (FS se) tab = simpleexptrans se tab
+
+prop_Lit :: Int -> Property
+prop_Lit x = collect ("signum " ++ show (signum x)) $
+             (factortrans (FN x) empty) == [(E, LIT (BracketlessInt x))]

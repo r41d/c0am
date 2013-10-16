@@ -1,18 +1,20 @@
+{-# LANGUAGE TemplateHaskell #-}
 module C0AMformat where
-
-{-
- - Legacy implementations with trailing '
- -}
 
 import Data.List
 import Data.Maybe
+import Control.Applicative
+
+import Test.QuickCheck
+import Test.Framework
+import Test.Framework.Providers.QuickCheck2
+import Test.Framework.TH
+
 import C0Types
 import C0AMtypes
-import Control.Applicative
-import Test.QuickCheck
 
---import Debug.Trace (trace)
-trace _ x = x
+
+c0amFormatQuickCheckProperties = $(testGroupGenerator)
 
 
 -- determines identical Counters
@@ -32,11 +34,9 @@ exchangeCounter (r@(cnt,cmd)) (c@(c1,c2)) | cnt == c1                  = (c2,cmd
                                           | cnt == c1 && cmd == JMC c1 = (c2,JMC c2)
                                           | otherwise                  = r
 
-
 -- apply exchangeCounter on a whole list of [Command]
 exchangeCounters :: [Command] -> [(Counter,Counter)] -> [Command]
 exchangeCounters rs cs = exchangeCounter <$> rs <*> cs
-
 
 -- call exchangeCounters repeatedly until the list doesnt change anymore
 exchangeAll :: [Command] -> [(Counter,Counter)] -> [Command]
@@ -44,7 +44,6 @@ exchangeAll rs [] = rs
 exchangeAll rs cs = until (\r -> r == exchangeCounters r cs)
                           (`exchangeCounters` cs)
                           rs
-
 
 unifyCounters :: [Command] -> [Command]
 unifyCounters cmds = exchangeAll cmds (doubles cmds)
@@ -56,8 +55,8 @@ sumNOPs = foldr f []
               where a `f` b | null b                      = [a]
                             | snd a == NOP && a == head b = b
                             | otherwise                   = a : b
--- DECPRECATED version below
-sumNOPs' :: [Command] -> [Command]
+
+sumNOPs' :: [Command] -> [Command] -- DECPRECATED version
 sumNOPs' [] = []
 sumNOPs' [x] = [x]
 sumNOPs' (x:xs)
@@ -65,21 +64,41 @@ sumNOPs' (x:xs)
                 | otherwise              = x : sumNOPs' xs
                 where y = head xs
 
+prop_sumNOPs_sumNOPs' :: [Command] -> Property
+prop_sumNOPs_sumNOPs' xs = property $ sumNOPs xs == sumNOPs' xs
+
+prop_sumNOPs_shrink :: [Command] -> Property
+prop_sumNOPs_shrink xs = classify (lenshrink < len) "actually shrinked something" $
+                         lenshrink <= len
+                         where len = length xs
+                               lenshrink = length (sumNOPs xs)
+
 
 -- erase NOPs, shift the address to the next command
 eraseNOPs :: [Command] -> [Command]
-eraseNOPs = foldr f []
+eraseNOPs [] = []
+eraseNOPs [x] = [x]
+eraseNOPs xs = foldr f [] xs
               where a `f` b | null b       = [a]
                             | snd a == NOP = (fst a, snd (head b)) : tail b
                             | otherwise    = a : b
--- DECPRECATED version below
-eraseNOPs' :: [Command] -> [Command]
+
+eraseNOPs' :: [Command] -> [Command] -- DECPRECATED version
 eraseNOPs' [] = []
 eraseNOPs' [x] = [x]
 eraseNOPs' (x:xs)
                   | snd x == NOP = (fst x, snd y) : eraseNOPs' (tail xs)
                   | otherwise    = x : eraseNOPs' xs
                   where y = head xs
+
+--prop_eraseNOPs_eraseNOPs' :: [Command] -> Property
+--prop_eraseNOPs_eraseNOPs' xs = property $ eraseNOPs xs == eraseNOPs' xs
+
+prop_eraseNOPs_shrink :: [Command] -> Property
+prop_eraseNOPs_shrink xs = classify (lenshrink < len) "actually shrinked something" $
+                           lenshrink <= len
+                           where len = length xs
+                                 lenshrink = length (eraseNOPs xs)
 
 
 genLinList :: [Command] -> [(Counter,Int)]

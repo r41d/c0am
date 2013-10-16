@@ -1,30 +1,27 @@
 {-# LANGUAGE TemplateHaskell #-}
-
-module Testsuite where
+module TestSuite where
 
 import Data.Monoid
 
+import Test.QuickCheck
+import Test.HUnit
 import Test.Framework -- (defaultMain, defaultMainWithOpts, testGroup)
---import Test.Framework.Options (TestOptions, TestOptions'(..))
---import Test.Framework.Runners.Options (RunnerOptions, RunnerOptions'(..))
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.Framework.Providers.HUnit (testCase, hUnitTestToTests)
 import Test.Framework.TH
 
-
-import Test.QuickCheck
-import Test.HUnit
-
 import QcProperties as Q hiding (main)
 import HunitTests as H hiding (main)
 
-tests = H.allC0amHUnitTestsTF : []
---main = defaultMain allTests
---main = defaultMain tests
-main = mainWithQuickCheck 1000 tests
 
+props = [ Q.c0amTypesQuickCheckProperties
+        , Q.c0amTransQuickCheckProperties
+        , Q.c0amFormatQuickCheckProperties]
+
+tests = [ H.allC0amHUnitTestsTF ]
+
+main = mainWithQuickCheck 100 (props ++ tests)
 
 mainWithQuickCheck runs tests = defaultMainWithOpts tests run_opts
-    where run_opts = (mempty::RunnerOptions) { ropt_test_options = Just test_opts }
+    where run_opts = (mempty::RunnerOptions) { ropt_test_options = Just test_opts, ropt_threads = Just 4}
           test_opts = (mempty::TestOptions) { topt_maximum_generated_tests = Just runs }
-

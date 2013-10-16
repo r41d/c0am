@@ -1,7 +1,8 @@
 module C0Types where
 
-import Test.QuickCheck
 import Control.Monad
+
+import Test.QuickCheck
 
 newtype Program = P Block deriving (Eq, Show)
 data    Block   = B VariableDeclaration StatementSequence deriving (Eq, Show)
@@ -28,6 +29,12 @@ data    Factor  = FI Ident
                 | FS SimpleExpression deriving (Eq, Show)
 type    Ident   = String
 type    Number  = Int
+
+
+class Size a where
+  size :: a -> Int
+
+
 
 
 -- viel zu hoch
@@ -81,4 +88,3 @@ instance Arbitrary Factor where
 	arbitrary = oneof [liftM FI arbitrary
                     ,liftM FN arbitrary
                     ,liftM FS arbitrary]
-

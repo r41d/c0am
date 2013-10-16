@@ -1,5 +1,4 @@
 {-# LANGUAGE TemplateHaskell #-}
-
 module HunitTests where
 
 import Test.HUnit
