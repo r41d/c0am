@@ -12,9 +12,7 @@ import Test.Framework.TH
 import C0Types
 import C0AMtypes
 
-
 c0amTransQuickCheckProperties = $(testGroupGenerator)
-
 
 --------------------------------------------------------------------------------
 -- stupid conversion from C0Types to Operation
@@ -40,26 +38,15 @@ mksymtab (V vars) = zip vars [1..]
 
 stseqtrans :: StatementSequence -> SymTab -> Counter -> [Command]
 stseqtrans (S [])  tab a = []
-stseqtrans (S sss) tab a = foldr1 (++) $ map (\k@(m,n) -> sttrans m tab $ nxt a n) $ zip sss [1..]
+stseqtrans (S sss) tab a = foldr1 (++) $
+                             map (\k@(m,n) -> sttrans m tab $ nxt a n) $
+                               zip sss [1..]
 
 sttrans :: Statement -> SymTab -> Counter -> [Command]
 sttrans (SS n) tab _ = [(E, READ (fromJust $ lookup n tab))]
 sttrans (SP n) tab _ = [(E, WRITE  (fromJust $ lookup n tab))]
 sttrans (SA as@(A id exp)) tab _ =    simpleexptrans exp tab
                                    ++ [(E, STORE (fromJust $ lookup id tab))]
-{-
-sttrans (SI ifst@(I exp stat Nothing)) tab a =    boolexptrans exp tab
-                                               ++ [(E, JMC a)]
-                                               ++ sttrans stat tab (nxt a 1)
-                                               ++ [(a, NOP)]
-sttrans (SI ifelsest@(I exp stat1 (Just stat2))) tab a =    boolexptrans exp tab
-                                                         ++ [(E, JMC a)]
-                                                         ++ sttrans stat1 tab (nxt a 1)
-                                                         ++ [(E, JMP (nxt a 3))]
-                                                         ++ [(a, NOP)]
-                                                         ++ sttrans stat2 tab (nxt a 2)
-                                                         ++ [(nxt a 3, NOP)]
--}
 sttrans (SI ifst@(I exp stat elze)) tab a =    boolexptrans exp tab
                                             ++ [(E, JMC a)]
                                             ++ sttrans stat tab (nxt a 1)
@@ -77,7 +64,6 @@ sttrans (SW whilest@(W exp stat)) tab a =    [(nxt a 2, NOP)]
                                           ++ [(a, NOP)]
 sttrans (SSS stseq) tab a = stseqtrans stseq tab a
 
-
 boolexptrans :: BoolExpression -> SymTab -> [Command]
 boolexptrans (Bool se1 rel se2) tab =    simpleexptrans se1 tab
                                       ++ simpleexptrans se2 tab
@@ -88,24 +74,13 @@ simpleexptrans (Simple t   [])            tab = termtrans t tab
 simpleexptrans (Simple t1 (x@(op,t2):xs)) tab =    termtrans t1 tab
                                                 ++ termtrans t2 tab
                                                 ++ [(E, opaddsub2op op)]
-                                                ++ simpleexptrans'' (Simple t2 xs) tab
-          where
-{-
-                simpleexptrans' :: SimpleExpression -> SymTab -> [Command]
-                simpleexptrans' (Simple _  [])           tab = []
-                simpleexptrans' (Simple _ (x@(op,t):xs)) tab =    termtrans t tab
-                                                               ++ [(E, opaddsub2op op)]
-                                                               ++ simpleexptrans (Simple t xs) tab
--}
-                simpleexptrans'' :: SimpleExpression -> SymTab -> [Command]
-                simpleexptrans'' (Simple _ xs) tab = foldr f [] xs
-                                 where f x@(op,t) = \x ->    (termtrans t tab
-                                                          ++ [(E, opaddsub2op op)]
-                                                          ++ simpleexptrans (Simple t xs) tab)
-                                                          ++ x
---simpleexptrans (Simple t1 (x@(op,t2):xs)) tab =    map (\x -> termtrans x tab) [t1,t2]
---                                                ++ [(E, opaddsub2op op)]
---                                                ++ ...
+                                                ++ simpleexptrans' (Simple t2 xs) tab
+    where
+        simpleexptrans' :: SimpleExpression -> SymTab -> [Command]
+        simpleexptrans' (Simple _  [])           tab = []
+        simpleexptrans' (Simple _ (x@(op,t):xs)) tab =    termtrans t tab
+                                                       ++ [(E, opaddsub2op op)]
+                                                       ++ simpleexptrans (Simple t xs) tab
 
 termtrans :: Term -> SymTab -> [Command]
 termtrans (T f  [])             tab = factortrans f tab
@@ -121,9 +96,5 @@ termtrans (T f1 (x@(op,f2):xs)) tab =    factortrans f1 tab
 
 factortrans :: Factor -> SymTab -> [Command]
 factortrans (FI id) tab = [(E, LOAD (fromJust $ lookup id tab))]
-factortrans (FN z) tab = [(E, LIT (BracketlessInt z))] -- cheat to avoid ()
+factortrans (FN z) tab = [(E, LIT (BracketlessInt z))]
 factortrans (FS se) tab = simpleexptrans se tab
-
-prop_Lit :: Int -> Property
-prop_Lit x = collect ("signum " ++ show (signum x)) $
-             (factortrans (FN x) empty) == [(E, LIT (BracketlessInt x))]

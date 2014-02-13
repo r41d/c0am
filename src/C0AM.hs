@@ -28,7 +28,7 @@ c0am c = case P.parseProg c of
              Right prog -> prog2am prog
 
 prog2am :: Program -> String
-prog2am = finalize . linearize . adjustJumps . eraseNOPs . unifyCounters . trans
+prog2am = finalize . adjustJumps . eraseNOPs . unifyCounters . trans
 
 -- was useful during development
 testit :: String -> IO ()
@@ -49,18 +49,12 @@ testit inp = do putStrLn $ "C0 program:\n" ++ inp
                         let exchanged = unifyCounters transed
                         putStrLn $ "Exchanged: " ++ show exchanged
 
-                        let collapsed = sumNOPs exchanged
-                        putStrLn $ "Collapsed: " ++ show collapsed
-
-                        let obliterated = eraseNOPs collapsed
+                        let obliterated = eraseNOPs exchanged
                         putStrLn $ "Obliterated: " ++ show obliterated
 
                         let adjusted = adjustJumps obliterated
                         putStrLn $ "Adjusted: " ++ show adjusted
-                       
-                        let linearized = linearize adjusted
-                        putStrLn $ "Linearized: " ++ show linearized
 
-                        let result = finalize linearized
+                        let result = finalize obliterated
                         putStrLn "THE RESULT: "
                         putStrLn result
