@@ -37,18 +37,13 @@ class Size a where
 
 
 
--- viel zu hoch
 --instance Arbitrary Program where
 -- 	arbitrary = liftM P arbitrary
 
--- zu hoch im Baum um vernünftig anzusetzen,
--- da die StatementSequence hochgradig von
--- der VariableDeclaration abhängt
 --instance Arbitrary Block where
 --	arbitrary = liftM2 B arbitrary arbitrary
 
--- nicht sinnvoll irgendwelche beliebigen VariableDeclaration zu generieren
--- da die StatementSequence hochgradig von der VariableDeclaration abhängt
+-- StatementSequence hängt hochgradig von der verwendeten VariableDeclaration ab
 --instance Arbitrary VariableDeclaration where
 --	arbitrary = liftM V arbitrary
 

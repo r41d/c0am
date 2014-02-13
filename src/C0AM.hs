@@ -1,7 +1,5 @@
 module C0AM where
 
-import Prelude  hiding (EQ, NE, LT, GT, LE, GE)
-import Data.List
 import System.Environment (getArgs)
 
 import C0Types
@@ -10,8 +8,6 @@ import C0AMtypes
 import C0AMtrans
 import C0AMformat
 
---import Debug.Trace as T (trace)
-trace _ x = x
 
 main :: IO ()
 main = do
@@ -32,7 +28,7 @@ c0am c = case P.parseProg c of
              Right prog -> prog2am prog
 
 prog2am :: Program -> String
-prog2am = finalize . linearize . adjustJumps . eraseNOPs . {- sumNOPs . -} unifyCounters . trans
+prog2am = finalize . linearize . adjustJumps . eraseNOPs . unifyCounters . trans
 
 -- was useful during development
 testit :: String -> IO ()

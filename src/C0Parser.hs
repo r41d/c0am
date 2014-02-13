@@ -110,7 +110,9 @@ pIdent = do
 checkIdent :: String -> CharParser [String] ()
 checkIdent ident = do
   idents <- trace ("DEBUG: checkIdent " ++ ident ++ "\n") getState
-  if ident `elem` idents then trace "DEBUG: ... successful!\n" (return ()) else fail ("unknown identifier " ++ ident)
+  if ident `elem` idents
+    then trace "DEBUG: ... successful!\n" (return ())
+    else fail ("unknown identifier " ++ ident)
 
 pStatementSequence :: CharParser [String] StatementSequence
 pStatementSequence =
@@ -199,7 +201,9 @@ pIfStatement = do
   char ')'
   stmt1 <- trace "parsed if part" pStatement
   wsOrCmts
-  try (trace "parsed else" (string "else") >> wsOrCmts >> pStatement >>= (\stmt2 -> return $ SI (I bexp stmt1 (Just stmt2)))) <|> return (SI (I bexp stmt1 Nothing))
+  try (trace "parsed else" (string "else") >> wsOrCmts >> pStatement >>=
+    (\stmt2 -> return $ SI (I bexp stmt1 (Just stmt2)) )) <|>
+               return (SI (I bexp stmt1 Nothing))
 
 pWhileStatement :: CharParser [String] Statement
 pWhileStatement = (do
@@ -239,12 +243,14 @@ pSimpleExpression :: CharParser [String] SimpleExpression
 pSimpleExpression = (do
   wsOrCmts
   (State s _ u) <- getParserState
-  term <- trace ("DEBUG: try to read term at parser state:\n" ++ s ++ "\nwith user state: " ++ show u ++ "\n") pTerm
+  term <- trace ("DEBUG: try to read term at parser state:\n"
+                 ++ s ++ "\nwith user state: " ++ show u ++ "\n") pTerm
   terms <- trace "DEBUG: try to read more terms\n" pMoreTerms
   return $ Simple term terms) <|>
   (do
     (State s _ u) <- getParserState
-    trace ("DEBUG: Simple Expression failed at ParserState:\n" ++ show s ++ "\n") fail "failed")
+    trace ("DEBUG: Simple Expression failed at ParserState:\n"
+           ++ show s ++ "\n") fail "failed")
 
 pTerm :: CharParser [String] Term
 pTerm = (do
@@ -264,9 +270,12 @@ pOpAddSub = wsOrCmts >> ((char '+' >> return Add) <|> (char '-' >> return Sub))
 
 pFactor :: CharParser [String] Factor
 pFactor = wsOrCmts >> (foldl1' (<|>) $ map try
-            [ trace "DEBUG pFactor ident? ...\n" (pIdent >>= (\ident -> (checkIdent ident >> return (FI ident))))
-            , trace "DEBUG pFactor number? ...\n" (pNumber >>= (\number -> return (FN number)))
-            , trace "DEBUG pFactor (simple expression)? ...\n" (char '(' >> wsOrCmts >> pSimpleExpression >>= (\sexp -> (wsOrCmts >> char ')' >> return (FS sexp))))
+            [ trace "DEBUG pFactor ident? ...\n"
+                    (pIdent >>= (\ident -> (checkIdent ident >> return (FI ident))))
+            , trace "DEBUG pFactor number? ...\n"
+                    (pNumber >>= (\number -> return (FN number)))
+            , trace "DEBUG pFactor (simple expression)? ...\n"
+                    (char '(' >> wsOrCmts >> pSimpleExpression >>= (\sexp -> (wsOrCmts >> char ')' >> return (FS sexp))))
             ])
 
 pMoreFactors :: CharParser [String] [(OpMulDivMod, Factor)]
@@ -277,7 +286,8 @@ pMoreFactors = many (try (do
 
 pOpMulDivMod :: CharParser [String] OpMulDivMod
 pOpMulDivMod = do
-  op <- trace "try to read mul div mod ops\n" $ wsOrCmts >> ((char '*' >> return Mul) <|> (char '/' >> return Div) <|> (char '%' >> return Mod))
+  op <- trace "try to read mul div mod ops\n" $
+        wsOrCmts >> ((char '*' >> return Mul) <|> (char '/' >> return Div) <|> (char '%' >> return Mod))
   trace ("read: " ++ show op ++ "\n") $ return op
 
 pNumber :: CharParser [String] Int
@@ -285,4 +295,6 @@ pNumber = do
   wsOrCmts
   sign <- char '-' <|> return ' '
   digits <- many1 digit
-  if sign == '-' then return ((read (sign:digits))::Int) else return ((read digits)::Int)
+  if sign == '-'
+    then return ((read (sign:digits))::Int)
+    else return ((read digits)::Int)
