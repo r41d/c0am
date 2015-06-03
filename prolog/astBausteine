@@ -1,0 +1,48 @@
+Program
+	P Block
+Block
+	B VariableDeclaration StatementSequence
+VariableDeclaration
+	V [Ident]
+StatementSequence
+	S [Statement]
+Statement
+	SS Ident -- scanf
+	SP Ident -- printf
+	SA Assignment
+	SI IfStatement
+	SW WhileStatement
+	SSS StatementSequence
+Assignment
+	A Ident SimpleExpression
+IfStatement
+	I BoolExpression Statement (Maybe Statement)
+WhileStatement
+	W BoolExpression Statement
+BoolExpression
+	Bool SimpleExpression Relation SimpleExpression
+Relation
+	Eq
+	Ne
+	Lt
+	Gt
+	Le
+	Ge
+SimpleExpression
+	Simple Term [(OpAddSub, Term)]
+OpAddSub
+	Add
+	Sub
+OpMulDivMod
+	Mul
+	Div
+	Mod
+Term
+	T Factor [(OpMulDivMod, Factor)]
+Factor
+	FI Ident
+	FN Number
+	FS SimpleExpression
+type Ident  = String
+type Number = Int
+
