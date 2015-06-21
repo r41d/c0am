@@ -1,13 +1,8 @@
+:- module(c0parser, [c0parser/3]).
 
 
-use_module(library(pio)).
-
-
-runnn() :-
-  %phrase(DcgBody, List)
-  phrase_from_file(pProgram(Code), 'simplesample.c0'), !,
-  %write(Code),
-  print_term(Code, []). % pretty printing
+%%%%%%%%%%%%%%%%%%% Export
+c0parser(P) --> pProgram(P).
 
 
 %%%%%%%%%%%%%%%%%%% ws
@@ -52,9 +47,13 @@ pVariableDeclaration(v(IdentList)) --> % {print("parsing VariableDeclaration...\
 
 %%%%%%%%%%%%%%%%%%% StatementSequence
 %pStatementSequence(s([S|SS])) --> anything.
-pStatementSequence(s([S|SS])) --> % {print("parsing StatementSequence...\n")},
+pStatementSequence(s(SSS)) --> % {print("parsing StatementSequence...\n")},
   pStatement(S), ws,
-  ([] ; pStatementSequence(SS)).
+  ([] ; pStatementSequence2(SS)),
+  { flatten([S|SS], SSS) }.
+pStatementSequence2([S|SS]) -->
+  pStatement(S), ws,
+  ([] ; pStatementSequence2(SS)).
 
 
 %%%%%%%%%%%%%%%%%%% Statement
@@ -64,7 +63,10 @@ pStatement(sp(Ident)) --> "printf", ws, "(", ws, "\"%d\",", ws, pIdent(Ident), w
 pStatement(sa(Assignment)) --> pAssignment(Assignment).
 pStatement(si(IfStatement)) --> pIfStatement(IfStatement).
 pStatement(sw(WhileStatement)) --> pWhileStatement(WhileStatement).
-pStatement(sss(StatementSequence)) --> ws, "{", ws, pStatementSequence(StatementSequence), ws, "}", ws.
+pStatement(sss(StatementSequence)) -->
+  ws, "{",
+  ws, pStatementSequence(StatementSequence),
+  ws, "}", ws.
 
 
 %%%%%%%%%%%%%%%%%%% Assignment
@@ -119,7 +121,7 @@ pTerm(t(Factor, MoreFactors)) -->
   pFactor(Factor),
   pMoreFactors(MoreFactors).
 pMoreTerms([]) --> [].
-pMoreTerms([[Op,Term]|Tail]) -->
+pMoreTerms([(Op,Term)|Tail]) -->
   pOpAddSub(Op),
   pTerm(Term),
   pMoreTerms(Tail).
@@ -132,7 +134,7 @@ pFactor(fi(Ident)) --> ws, pIdent(Ident). % TODO: prüfe ob validIdent(Ident) gi
 pFactor(fn(Number)) --> ws, pNumber(Number).
 pFactor(fs(SimpleExp)) --> ws, "(", ws, pSimpleExpression(SimpleExp), ws, ")", ws.
 pMoreFactors([]) --> [].
-pMoreFactors([[Op,Fac]|Tail]) -->
+pMoreFactors([(Op,Fac)|Tail]) -->
   pOpMulDivMod(Op), pFactor(Fac), pMoreFactors(Tail).
 pOpMulDivMod(mulOP) --> ws, "*".
 pOpMulDivMod(divOP) --> ws, "/".
@@ -164,6 +166,17 @@ pNumber(Number) --> % This is extremely ugly, but hey, it works
   }.
 num([H|T]) --> [H], { char_type(H, digit) }, num(T).
 num([H])   --> [H], { char_type(H, digit) }.
+
+%%%%%%%%%%%%%%%%%%% Komma Number
+pKommaNumber(Number) -->
+  ws, numK(Parsed), % parse
+  { string_codes(StringNumber, Parsed), % convert to "string"
+    atom_number(StringNumber, Number) % convert to number
+  }.
+numK(X)     --> ",", numK(X). % tausendendertrennzeichen ignorieren
+numK([H|T]) --> [H], { char_type(H, digit) }, numK(T).
+numK([H])   --> [H], { char_type(H, digit) }.
+
 
 
 %%%%%%%%%%%%%%%%%%% anything
