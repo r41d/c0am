@@ -1,4 +1,4 @@
-:- module(c0parser, [c0parser/3]).
+:- module(parser, [c0parser/3]).
 
 
 %%%%%%%%%%%%%%%%%%% Export

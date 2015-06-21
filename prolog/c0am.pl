@@ -1,0 +1,26 @@
+:- module(c0am, [c0am/0]).
+
+:- use_module(library(pio)).
+:- use_module(parser).
+:- use_module(trans).
+:- use_module(format).
+
+c0am() :-
+
+  phrase_from_file(c0parser(Code), 'simplesample.c0'), !,
+
+  write("c0parse:\n"), !,
+  write(Code),
+  %print_term(Code, []), % pretty printing
+
+  c0trans(Code, Commands),
+  write("\nc0trans:\n"),
+  write(Commands),
+  %print_term(Commands, []), % pretty printing
+
+  c0format(Commands, Final),
+  write("\nc0format:\n"),
+  write(Final),
+
+  true.
+
