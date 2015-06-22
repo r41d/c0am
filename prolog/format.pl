@@ -1,4 +1,5 @@
 :- module(format, [c0format/2]).
+
 :- use_module(helper).
 
 :- dynamic double/2. % determined identical Counters
@@ -15,10 +16,6 @@ c0format(C,F) :-
   finalize(A, F).
 
 
-%prog2am :: Program -> String
-%prog2am = finalize . adjustJumps . eraseNOPs . unifyCounters . trans
-
-
 % determines identical Counters
 doubles([]).
 doubles([(A1,nop),(B1,nop)|Cs]) :-
@@ -27,6 +24,7 @@ doubles([(A1,nop),(B1,nop)|Cs]) :-
 doubles([_|Cs]) :-
   doubles(Cs).
 
+
 % unify duplicate counters
 exchangeCounter( (C,Cmd)     , (CC,Cmd)        ) :- double(C, CC).
 exchangeCounter( (C,jmp(Jmp)), (C,jmp(NewJmp)) ) :- double(Jmp, NewJmp).
@@ -34,6 +32,7 @@ exchangeCounter( (C,jmc(Jmp)), (C,jmc(NewJmp)) ) :- double(Jmp, NewJmp).
 exchangeCounter( (C,jmp(C))  , (CC,jmp(CC))    ) :- double(C, CC).
 exchangeCounter( (C,jmc(C))  , (CC,jmc(CC))    ) :- double(C, CC).
 exchangeCounter(Cmd, Cmd).
+
 
 % apply exchangeCounter on a whole list of Commands
 unifyCounters(Cmds, UnifiedCmds) :- % dammit, why Singleton ?!?!?
@@ -105,5 +104,5 @@ cmd2str(le, "LE").
 cmd2str(ge, "GE").
 cmd2str(jmp(C), Res) :- atom_number(N, C), meltStr(["JMP ", N], Res).
 cmd2str(jmc(C), Res) :- atom_number(N, C), meltStr(["JMC ", N], Res).
-
+cmd2str(nop) :- write("NOP in Command List! Holy Shit, not gonna happen..\n"), fail.
 

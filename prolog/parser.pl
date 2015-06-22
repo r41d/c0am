@@ -1,5 +1,5 @@
 :- module(parser, [c0parser/3]).
-%:- use_module(helper).
+
 
 %%%%%%%%%%%%%%%%%%% Export
 c0parser(P) --> pProgram(P).
@@ -7,9 +7,9 @@ c0parser(P) --> pProgram(P).
 
 %%%%%%%%%%%%%%%%%%% ws
 ws --> [] ; " ", ws ; "\t", ws ; "\n", ws.
-%wsOrCmts --> " ", wsOrCmts
-cmt --> "//", anything, "\n".
-cmt --> "/*", anything, "*/".
+%wsCmt --> (ws ; cmt), wsCmt
+%cmt --> "//", anything, "\n".
+%cmt --> "/*", anything, "*/".
 
 
 %%%%%%%%%%%%%%%%%%% Program

@@ -1,4 +1,5 @@
 :- module(trans, [c0trans/2]).
+
 :- use_module(helper).
 
 :- dynamic symtab/2. % symbol table is being held globally
@@ -20,17 +21,17 @@ c0trans(P,C) :- trans(P,C).
 % opMulDivMod: mulOP, divOP, modOP können direkt übernommen werden aus AST
 % relation: lt, eq, ne, gt, le, ge können direkt übernommen werden aus AST
 
-% trans DONE
+
 trans(p(B),CmdList) :- blocktrans(B,CmdList).
 %trans(_, []) :- write("trans FAILED!\n").
 
-% blocktrans DONE
+
 blocktrans(b(Vardecl,Stseq), CmdList) :-
   mksymtab(Vardecl, SymTab),
   assertsymtab(SymTab),
   stseqtrans(Stseq, [1], CmdList).  %  [1] = StartCounter
 
-% mksymtab DONE
+
 mksymtab(v(Vardecl), SymTab) :-
   zipN(Vardecl, 1, SymTab).
 assertsymtab(SymTab) :-
@@ -40,7 +41,7 @@ assertsymtab(SymTab) :-
     assertz(symtab(Name, ID))
   ).
 
-%stseqtrans DONE
+
 stseqtrans(s([]), _, _, []).
 stseqtrans(s(SSS), Counter, CmdList) :-
   zipN(SSS, 1, SSSzip),
@@ -55,7 +56,7 @@ innerthing( ((M,N),A) , Res) :- % M=statement N=statementNr A=counter
   nxt(A,N,C),
   sttrans(M, C, Res).
 
-% sttrans DONE
+
 sttrans(ss(Ident), _, [(e, read(ID))]) :- symtab(Ident, ID).
 sttrans(sp(Ident), _, [(e, write(ID))]) :- symtab(Ident, ID).
 sttrans(sa(a(Ident,Exp)), _, CmdList) :-
@@ -80,13 +81,13 @@ sttrans(sw(w(Exp,Stmt)), A, CmdList) :-
   melt([ [(C2,nop)], E, [(e,jmc(A))], S, [(e,jmp(C2)), (A,nop)] ], CmdList).
 sttrans(sss(SSS), A, CmdList) :- stseqtrans(SSS, A, CmdList).
 
-% boolexptrans DONE
+
 boolexptrans(bool(SimpleExp1, Rel, SimpleExp2), CmdList) :-
   simpleexptrans(SimpleExp1, SE1),
   simpleexptrans(SimpleExp2, SE2),
   melt([SE1, SE2, [(e,Rel)]], CmdList).
 
-% simpleexptrans DONE
+
 simpleexptrans(simple(Term, []), Res) :- termtrans(Term, Res).
 simpleexptrans(simple(Term1, [(OP,Term2)|Tail]), Res) :-
   termtrans(Term1, T1),
@@ -99,7 +100,7 @@ simpleexptrans2(simplemore([(OP,Term)|Tail]), Res) :-
   simpleexptrans2(simplemore(Tail), SE),
   melt([T, [(e,OP)], SE], Res).
 
-% termtrans DONE
+
 termtrans(t(Factor, []), Res) :- factortrans(Factor, Res).
 termtrans(t(F1, [(OP,F2)|MoreFactors]), Res) :-
   factortrans(F1, F1T),
@@ -112,8 +113,9 @@ termtrans2(t(_,[(OP,F)|T]), Res) :-
   termtrans2(t(F,T), TT),
   melt([FT, [(e,OP)], TT], Res).
 
-% factortrans DONE
+
 factortrans(fi(Ident), [(e, load(ID))]) :- symtab(Ident, ID).
 factortrans(fn(Number), [(e, lit(Number))]).
 factortrans(fs(SimpleExp), Ret) :- simpleexptrans(SimpleExp, Ret).
+
 
