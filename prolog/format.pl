@@ -45,9 +45,9 @@ unifyCounters(Cmds, UnifiedCmds) :- % dammit, why Singleton ?!?!?
 % erase NOPs, shift the address to the next command
 eraseNOPs([], []).
 eraseNOPs([X], [X]).
-eraseNOPs([(CntA,nop),(_CntB,CmdB)|Xs], [(CntA,CmdB)|Ys]) :-
+eraseNOPs([(CntA,nop),(_CntB,CmdB)|Xs], Ys) :-
   !,
-  eraseNOPs(Xs, Ys).
+  eraseNOPs([(CntA,CmdB)|Xs], Ys).
 eraseNOPs([X|Xs], [X|Ys]) :-
   %CmdA \= nop % not necessary because of cut in the above predicate
   eraseNOPs(Xs, Ys).
