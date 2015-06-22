@@ -164,6 +164,13 @@ pNumber(Number) --> % This is extremely ugly, but hey, it works
     string_codes(StringNumber, Parsed), % convert to "string"
     atom_number(StringNumber, Number) % convert to number
   }.
+pNumber(Result) --> % Parse negative Numbers
+  ws, "-", num(Parsed), % parse
+  {
+    string_codes(StringNumber, Parsed), % convert to "string"
+    atom_number(StringNumber, Number), % convert to number
+    Result is Number * -1
+  }.
 num([H|T]) --> [H], { char_type(H, digit) }, num(T).
 num([H])   --> [H], { char_type(H, digit) }.
 
