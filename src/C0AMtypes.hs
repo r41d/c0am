@@ -55,3 +55,4 @@ nxt :: Counter -> Int -> Counter
 nxt (C x E) n = C x (C n E)
 nxt (C x c) n = C x (nxt c n)
 nxt E       _ = E
+

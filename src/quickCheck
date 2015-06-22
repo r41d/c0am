@@ -46,3 +46,4 @@ options opts = unwords ["\""++opt++"\"" | opt<-opts]
 getOption name def opts = 
   let opt = head [opt | opt<-opts++[def], isPrefixOf name (drop 1 opt)] in
     (opt, filter (/=opt) opts)
+

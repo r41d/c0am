@@ -75,3 +75,4 @@ adjustJumps cmds = adjustJumps' cmds (genLinList cmds)
 finalize :: [Command] -> String
 finalize c = (intercalate "\n" . map (show . CommandLin)) lin
   where lin = (zip [1..] . map snd) c
+

@@ -38,13 +38,13 @@ mksymtab (V vars) = zip vars [1..]
 
 stseqtrans :: StatementSequence -> SymTab -> Counter -> [Command]
 stseqtrans (S [])  tab a = []
-stseqtrans (S sss) tab a = foldr1 (++) $
+stseqtrans (S sss) tab a = concat $ -- foldr1 (++) $
                              map (\k@(m,n) -> sttrans m tab $ nxt a n) $
                                zip sss [1..]
 
 sttrans :: Statement -> SymTab -> Counter -> [Command]
 sttrans (SS n) tab _ = [(E, READ (fromJust $ lookup n tab))]
-sttrans (SP n) tab _ = [(E, WRITE  (fromJust $ lookup n tab))]
+sttrans (SP n) tab _ = [(E, WRITE (fromJust $ lookup n tab))]
 sttrans (SA as@(A id exp)) tab _ =    simpleexptrans exp tab
                                    ++ [(E, STORE (fromJust $ lookup id tab))]
 sttrans (SI ifst@(I exp stat elze)) tab a =    boolexptrans exp tab
@@ -74,13 +74,13 @@ simpleexptrans (Simple t   [])            tab = termtrans t tab
 simpleexptrans (Simple t1 (x@(op,t2):xs)) tab =    termtrans t1 tab
                                                 ++ termtrans t2 tab
                                                 ++ [(E, opaddsub2op op)]
-                                                ++ simpleexptrans' (Simple t2 xs) tab
+                                                ++ simpleexptrans' xs tab
     where
-        simpleexptrans' :: SimpleExpression -> SymTab -> [Command]
-        simpleexptrans' (Simple _  [])           tab = []
-        simpleexptrans' (Simple _ (x@(op,t):xs)) tab =    termtrans t tab
-                                                       ++ [(E, opaddsub2op op)]
-                                                       ++ simpleexptrans (Simple t xs) tab
+        simpleexptrans' :: [(OpAddSub, Term)] -> SymTab -> [Command]
+        simpleexptrans' []            tab = []
+        simpleexptrans' (x@(op,t):xs) tab =    termtrans t tab
+                                            ++ [(E, opaddsub2op op)]
+                                            ++ simpleexptrans' xs tab
 
 termtrans :: Term -> SymTab -> [Command]
 termtrans (T f  [])             tab = factortrans f tab
@@ -98,3 +98,4 @@ factortrans :: Factor -> SymTab -> [Command]
 factortrans (FI id) tab = [(E, LOAD (fromJust $ lookup id tab))]
 factortrans (FN z) tab = [(E, LIT (BracketlessInt z))]
 factortrans (FS se) tab = simpleexptrans se tab
+

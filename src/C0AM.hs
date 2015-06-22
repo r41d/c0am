@@ -58,3 +58,4 @@ testit inp = do putStrLn $ "C0 program:\n" ++ inp
                         let result = finalize obliterated
                         putStrLn "THE RESULT: "
                         putStrLn result
+

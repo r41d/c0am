@@ -13,3 +13,4 @@ import qualified C0AMformat
 c0amTypesQuickCheckProperties = C0AMtypes.c0amTypesQuickCheckProperties
 c0amTransQuickCheckProperties = C0AMtrans.c0amTransQuickCheckProperties
 c0amFormatQuickCheckProperties = C0AMformat.c0amFormatQuickCheckProperties
+

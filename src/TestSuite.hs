@@ -25,3 +25,4 @@ main = mainWithQuickCheck 1000 (props ++ tests)
 mainWithQuickCheck runs tests = defaultMainWithOpts tests run_opts
     where run_opts = (mempty::RunnerOptions) { ropt_test_options = Just test_opts }
           test_opts = (mempty::TestOptions) { topt_maximum_generated_tests = Just runs }
+

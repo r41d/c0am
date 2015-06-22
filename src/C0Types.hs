@@ -25,3 +25,4 @@ data    Factor  = FI Ident
                 | FS SimpleExpression deriving (Eq, Show)
 type    Ident   = String
 type    Number  = Int
+

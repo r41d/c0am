@@ -24,3 +24,10 @@ c0am() :-
 
   true.
 
+
+c0am(File) :-
+  phrase_from_file(c0parser(Code), File), !,
+  c0trans(Code, Commands),
+  c0format(Commands, Final),
+  write(Final).
+
