@@ -67,6 +67,7 @@ genLinList([(Cnt,_Cmd)|Rs], N) :-
 
 
 adjustJumps(Cmds, ResCmds) :-
+  retractall(lin(_,_)), % important
   genLinList(Cmds),
   maplist(adjustJump, Cmds, ResCmds).
 adjustJump( (Cnt,jmp(Jmp)), (Cnt,jmp(JmpLin)) ) :- lin(Jmp,JmpLin), !.
