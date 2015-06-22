@@ -20,10 +20,6 @@ c0trans(P,C) :- trans(P,C).
 % opMulDivMod: mulOP, divOP, modOP können direkt übernommen werden aus AST
 % relation: lt, eq, ne, gt, le, ge können direkt übernommen werden aus AST
 
-% counter repräsentation:
-%   e | c(Num,Counter)
-
-
 % trans DONE
 trans(p(B),CmdList) :- blocktrans(B,CmdList).
 %trans(_, []) :- write("trans FAILED!\n").
@@ -120,7 +116,4 @@ termtrans2(t(_,[(OP,F)|T]), Res) :-
 factortrans(fi(Ident), [(e, load(ID))]) :- symtab(Ident, ID).
 factortrans(fn(Number), [(e, lit(Number))]).
 factortrans(fs(SimpleExp), Ret) :- simpleexptrans(SimpleExp, Ret).
-
-
-
 

@@ -24,8 +24,8 @@ case_50 = c0am_case "50"
 case_vorlesung = c0am_case "vorlesung"
 
 c0am_case :: String -> Assertion
-c0am_case name = (do let c0file = "samples/" ++ name ++ ".c0"
-                     let amfile = "samples/" ++ name ++ ".am"
+c0am_case name = (do let c0file = "../c0samples/" ++ name ++ ".c0"
+                     let amfile = "../c0samples/" ++ name ++ ".am"
                      c0prog <- readFile c0file
                      amprog <- readFile amfile 
                      assertEqual (c0file++" -> "++amfile) amprog (c0am c0prog++"\n")
