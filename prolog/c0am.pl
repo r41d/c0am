@@ -25,6 +25,12 @@ c0am() :-
   true.
 
 
+c0amdebug(File) :-
+  phrase_from_file(c0parser(Code), File), !, write("c0parse:\n"), write(Code),
+  c0trans(Code, Commands), write("\nc0trans:\n"), write(Commands),
+  c0format(Commands, Final), write("\nc0format:\n"), write(Final).
+
+
 c0am(File) :-
   phrase_from_file(c0parser(Code), File), !,
   c0trans(Code, Commands),
