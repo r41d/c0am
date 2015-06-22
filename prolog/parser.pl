@@ -1,5 +1,5 @@
 :- module(parser, [c0parser/3]).
-
+%:- use_module(helper).
 
 %%%%%%%%%%%%%%%%%%% Export
 c0parser(P) --> pProgram(P).

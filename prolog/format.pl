@@ -76,9 +76,7 @@ adjustJump( R             , R                 ).
 
 finalize(Cmds, Final) :-
   maplist(snd, Cmds, Snds),
-  write(Snds),
   zip1L(Snds, 1, Zips),
-  write(Zips),
   maplist(lin2str, Zips, Lines),
   intersperse("\n", Lines, WithNL),
   meltStr(WithNL, Final).
