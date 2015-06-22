@@ -1,19 +1,11 @@
-{-# LANGUAGE TemplateHaskell #-}
 module C0AMformat where
 
 import Data.List
 import Data.Maybe
 import Control.Applicative
 
-import Test.QuickCheck
-import Test.Framework
-import Test.Framework.Providers.QuickCheck2
-import Test.Framework.TH
-
 import C0Types
 import C0AMtypes
-
-c0amFormatQuickCheckProperties = $(testGroupGenerator)
 
 -- determines identical Counters
 doubles :: [Command] -> [(Counter,Counter)]

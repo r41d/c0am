@@ -1,0 +1,16 @@
+1: READ 1;
+2: READ 2;
+3: LOAD 1;
+4: LOAD 2;
+5: GT;
+6: JMC 12;
+7: LOAD 1;
+8: LOAD 2;
+9: ADD;
+10: STORE 3;
+11: JMP 16;
+12: LOAD 1;
+13: LOAD 2;
+14: MUL;
+15: STORE 3;
+16: WRITE 3;

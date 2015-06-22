@@ -1,18 +1,10 @@
-{-# LANGUAGE TemplateHaskell #-}
 module C0AMtrans where
 
 import Prelude  hiding (EQ, NE, LT, GT, LE, GE)
 import Data.Maybe
 
-import Test.QuickCheck
-import Test.Framework
-import Test.Framework.Providers.QuickCheck2
-import Test.Framework.TH
-
 import C0Types
 import C0AMtypes
-
-c0amTransQuickCheckProperties = $(testGroupGenerator)
 
 --------------------------------------------------------------------------------
 -- stupid conversion from C0Types to Operation

@@ -1,18 +1,10 @@
-{-# LANGUAGE TemplateHaskell #-}
 module C0AMtypes where
 
 import Prelude  hiding (LT, EQ, NE, GT, LE, GE)
 import Data.Maybe
 import Control.Monad
 
-import Test.QuickCheck
-import Test.Framework
-import Test.Framework.Providers.QuickCheck2
-import Test.Framework.TH
-
 import C0Types
-
-c0amTypesQuickCheckProperties = $(testGroupGenerator)
 
 data Operation = READ Int | WRITE Int
                | LOAD Int | STORE Int | LIT BracketlessInt

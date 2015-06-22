@@ -1,28 +1,30 @@
 {-# LANGUAGE TemplateHaskell #-}
 module TestSuite where
 
-import Data.Monoid
-
-import Test.QuickCheck
 import Test.HUnit
 import Test.Framework -- (defaultMain, defaultMainWithOpts, testGroup)
-import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.Framework.Providers.HUnit (testCase, hUnitTestToTests)
 import Test.Framework.TH
+import Test.Framework.Providers.HUnit
 
-import QcProperties as Q hiding (main)
-import HunitTests as H hiding (main)
+import C0AM hiding (main)
 
 
-props = [ Q.c0amTypesQuickCheckProperties
-        , Q.c0amTransQuickCheckProperties
-        , Q.c0amFormatQuickCheckProperties]
+main = defaultMain [$(testGroupGenerator)]
 
-tests = [ H.allC0amHUnitTestsTF ]
+case_47 = c0am_case "47"
+case_48 = c0am_case "48"
+case_49 = c0am_case "49"
+case_50 = c0am_case "50"
+case_vorlesung = c0am_case "vorlesung"
+case_simplesample = c0am_case "simplesample"
 
-main = mainWithQuickCheck 1000 (props ++ tests)
+c0am_case :: String -> Assertion
+c0am_case name = do
+  let c0file = "../c0samples/" ++ name ++ ".c0"
+  let amfile = "../c0samples/" ++ name ++ ".am"
+  c0prog <- readFile c0file
+  amprog <- readFile amfile
+  -- equal strings = correct c0 → AM. yup, i'm serious :D
+  assertEqual (c0file++" -> "++amfile) amprog (c0am c0prog++"\n")
 
-mainWithQuickCheck runs tests = defaultMainWithOpts tests run_opts
-    where run_opts = (mempty::RunnerOptions) { ropt_test_options = Just test_opts }
-          test_opts = (mempty::TestOptions) { topt_maximum_generated_tests = Just runs }
 
